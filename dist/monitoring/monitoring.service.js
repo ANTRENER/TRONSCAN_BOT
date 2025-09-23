@@ -12,6 +12,7 @@ var MonitoringService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MonitoringService = void 0;
 const common_1 = require("@nestjs/common");
+const schedule_1 = require("@nestjs/schedule");
 const wallet_service_1 = require("../database/services/wallet.service");
 const transaction_checkpoint_service_1 = require("../database/services/transaction-checkpoint.service");
 const tron_service_1 = require("../tron/tron.service");
@@ -143,6 +144,12 @@ let MonitoringService = MonitoringService_1 = class MonitoringService {
     }
 };
 exports.MonitoringService = MonitoringService;
+__decorate([
+    (0, schedule_1.Cron)('0 0 */6 * * *'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], MonitoringService.prototype, "validateCheckpoints", null);
 exports.MonitoringService = MonitoringService = MonitoringService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [wallet_service_1.WalletService,

@@ -18,9 +18,15 @@ import { TransactionCheckpointService } from './services/transaction-checkpoint.
                 password: configService.get('database.password'),
                 database: configService.get('database.database'),
                 entities: [Wallet, TransactionCheckpoint],
-                synchronize: true, // В продакшене использовать миграции
-                logging: false,
+                synchronize: process.env.NODE_ENV !== 'production', // В продакшене использовать миграции
+                logging: process.env.NODE_ENV === 'development',
                 ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+                // Настройки для serverless среды
+                extra: process.env.NODE_ENV === 'production' ? {
+                    ssl: { rejectUnauthorized: false }
+                } : undefined,
+                // Ограничение пула соединений для Vercel
+                maxQueryExecutionTime: 10000, // 10 секунд таймаут
             }),
             inject: [ConfigService],
         }),

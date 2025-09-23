@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Ensure pgcrypto for gen_random_uuid() -->
+    <changeSet id="enable_pgcrypto" author="system">
+        <sql>
+            CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+        </sql>
+    </changeSet>
+
+    <!-- Create wallets table -->
+    <changeSet id="create_wallets_table" author="system">
+        <createTable tableName="wallets">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="address" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="chat_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Create transaction_checkpoints table -->
+    <changeSet id="create_transaction_checkpoints_table" author="system">
+        <createTable tableName="transaction_checkpoints">
+            <column name="wallet_address" type="varchar(255)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="last_block_number" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_transaction_hash" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Create indexes for better performance -->
+    <changeSet id="create_indexes" author="system">
+        <createIndex indexName="idx_wallets_chat_id" tableName="wallets">
+            <column name="chat_id"/>
+        </createIndex>
+        <createIndex indexName="idx_wallets_address" tableName="wallets">
+            <column name="address"/>
+        </createIndex>
+        <createIndex indexName="idx_transaction_checkpoints_wallet_address" tableName="transaction_checkpoints">
+            <column name="wallet_address"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

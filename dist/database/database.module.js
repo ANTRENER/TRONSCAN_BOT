@@ -30,9 +30,13 @@ exports.DatabaseModule = DatabaseModule = __decorate([
                     password: configService.get('database.password'),
                     database: configService.get('database.database'),
                     entities: [wallet_entity_1.Wallet, transaction_checkpoint_entity_1.TransactionCheckpoint],
-                    synchronize: true,
-                    logging: false,
+                    synchronize: process.env.NODE_ENV !== 'production',
+                    logging: process.env.NODE_ENV === 'development',
                     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+                    extra: process.env.NODE_ENV === 'production' ? {
+                        ssl: { rejectUnauthorized: false }
+                    } : undefined,
+                    maxQueryExecutionTime: 10000,
                 }),
                 inject: [config_1.ConfigService],
             }),

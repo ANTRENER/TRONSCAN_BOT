@@ -16,7 +16,7 @@ export class MonitoringService {
         private telegramService: TelegramService,
     ) { }
 
-    // @Cron('0 */2 * * * *') // Отключено для Vercel - работает через webhook
+    // @Cron('0 */2 * * * *') // Отключено для Vercel serverless - используется API endpoint
     async checkTransactions() {
         this.logger.debug('Checking transactions...');
 
@@ -32,7 +32,7 @@ export class MonitoringService {
     }
 
     // Метод для резервной проверки (если основной упадет)
-    // @Cron('0 0 */6 * * *') // Отключено для Vercel
+    @Cron('0 0 */6 * * *') // Каждые 6 часов
     async validateCheckpoints() {
         this.logger.debug('Validating all checkpoints...');
 
