@@ -67,7 +67,8 @@ export class TelegramService {
 
             try {
                 const chatId = ctx.chat.id.toString();
-                await this.walletService.addWallet(address, chatId);
+                const userId = ctx.from.id.toString();
+                await this.walletService.addWallet(address, chatId, userId);
                 ctx.reply(`✅ Кошелек ${address} добавлен для мониторинга`);
             } catch (error) {
                 ctx.reply(`❌ Ошибка: ${error.message}`);

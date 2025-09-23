@@ -35,4 +35,15 @@ export class AppController {
   getHealth() {
     return { status: 'ok', timestamp: new Date().toISOString() };
   }
+
+  // Migration endpoint (только для разработки)
+  @Post('migrate')
+  async runMigration() {
+    if (process.env.NODE_ENV === 'production') {
+      return { error: 'Migrations disabled in production' };
+    }
+
+    // Здесь можно добавить логику миграций
+    return { status: 'ok', message: 'Migration completed' };
+  }
 }

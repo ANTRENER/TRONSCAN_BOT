@@ -10,8 +10,8 @@ export class WalletService {
         private walletRepository: Repository<Wallet>,
     ) { }
 
-    async addWallet(address: string, chatId: string): Promise<Wallet> {
-        // Проверяем, есть ли уже этот кошелек у этого пользователя
+    async addWallet(address: string, chatId: string, userId?: string): Promise<Wallet> {
+        // Проверяем, есть ли уже этот кошелек в этом чате
         const existingWallet = await this.walletRepository.findOne({
             where: { address, chatId },
         });
@@ -20,18 +20,21 @@ export class WalletService {
             throw new Error('Этот кошелек уже отслеживается в этом чате');
         }
 
-        // Проверяем, есть ли этот кошелек у других пользователей
-        const globalWallet = await this.walletRepository.findOne({
-            where: { address },
-        });
+        // Если userId передан, проверяем, есть ли этот кошелек у этого пользователя в другом чате
+        if (userId) {
+            const userWallet = await this.walletRepository.findOne({
+                where: { address, userId },
+            });
 
-        if (globalWallet) {
-            throw new Error('Этот кошелек уже отслеживается другим пользователем');
+            if (userWallet) {
+                throw new Error('Этот кошелек уже отслеживается вами в другом чате');
+            }
         }
 
         const wallet = this.walletRepository.create({
             address,
             chatId,
+            userId,
         });
 
         return this.walletRepository.save(wallet);

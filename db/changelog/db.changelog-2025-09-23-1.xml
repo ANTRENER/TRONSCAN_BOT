@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- Ensure pgcrypto for gen_random_uuid() -->
+    <changeSet id="ensure-pgcrypto-extension" author="system">
+        <sql>
+            CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+        </sql>
+    </changeSet>
+
+    <!-- Add userId column to wallets table -->
+    <changeSet id="add-user-id-to-wallets" author="system">
+        <addColumn tableName="wallets">
+            <column name="user_id" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- Remove unique constraint on address -->
+    <changeSet id="remove-unique-constraint-address" author="system">
+        <dropUniqueConstraint tableName="wallets" constraintName="UQ_f907d5fd09a9d374f1da4e13bd3"/>
+    </changeSet>
+
+    <!-- Add unique constraint on address + user_id -->
+    <changeSet id="add-unique-constraint-address-user" author="system">
+        <addUniqueConstraint tableName="wallets" columnNames="address, user_id" constraintName="UQ_wallet_address_user"/>
+    </changeSet>
+
+    <!-- Add index on user_id for performance -->
+    <changeSet id="add-index-user-id" author="system">
+        <createIndex tableName="wallets" indexName="idx_wallets_user_id">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

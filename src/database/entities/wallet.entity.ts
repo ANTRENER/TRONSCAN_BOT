@@ -5,11 +5,14 @@ export class Wallet {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ unique: true })
+    @Column()
     address: string;
 
     @Column()
     chatId: string;
+
+    @Column({ nullable: true })
+    userId: string;
 
     @CreateDateColumn()
     createdAt: Date;
