@@ -39,15 +39,13 @@ export class AppController {
   // Migration endpoint (только для разработки)
   @Post('migrate')
   async runMigration() {
-    if (process.env.NODE_ENV === 'production') {
-      return { error: 'Migrations disabled in production' };
-    }
+    // Миграции включены в продакшне
 
     try {
       // Имитируем миграцию через SQL команды
       const { Client } = require('pg');
       const client = new Client({
-        connectionString: process.env.DATABASE_URL
+        connectionString: process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.SUPABASE_URL
       });
 
       await client.connect();
@@ -58,15 +56,15 @@ export class AppController {
       // Удалить уникальное ограничение на address
       await client.query('ALTER TABLE wallets DROP CONSTRAINT IF EXISTS UQ_f907d5fd09a9d374f1da4e13bd3');
 
-      // Добавить уникальное ограничение на address + user_id
-      await client.query('ALTER TABLE wallets ADD CONSTRAINT UQ_wallet_address_user UNIQUE (address, user_id)');
+      // Удалить старое ограничение на address + user_id если есть
+      await client.query('ALTER TABLE wallets DROP CONSTRAINT IF EXISTS uq_wallet_address_user');
 
       // Добавить индекс на user_id
       await client.query('CREATE INDEX IF NOT EXISTS idx_wallets_user_id ON wallets (user_id)');
 
       await client.end();
 
-      return { status: 'ok', message: 'Migration completed successfully' };
+      return { status: 'ok', message: 'Migration completed successfully - unique constraints removed' };
     } catch (error) {
       return { error: 'Migration failed', details: error.message };
     }

@@ -10,7 +10,7 @@ export class WalletService {
         private walletRepository: Repository<Wallet>,
     ) { }
 
-    async addWallet(address: string, chatId: string, userId?: string): Promise<Wallet> {
+    async addWallet(address: string, chatId: string): Promise<Wallet> {
         // Проверяем, есть ли уже этот кошелек в этом чате
         const existingWallet = await this.walletRepository.findOne({
             where: { address, chatId },
@@ -20,11 +20,10 @@ export class WalletService {
             throw new Error('Этот кошелек уже отслеживается в этом чате');
         }
 
-        // Создаем кошелек без userId (просто для совместимости)
+        // Создаем кошелек
         const wallet = this.walletRepository.create({
             address,
             chatId,
-            // userId: userId, // Закомментировано пока не добавим колонку
         });
 
         return this.walletRepository.save(wallet);
