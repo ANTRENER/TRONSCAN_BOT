@@ -29,13 +29,86 @@ export default async (req, res) => {
         }
         else if (req.url === '/api/telegram' && req.method === 'POST') {
             console.log('✅ TELEGRAM WEBHOOK RECEIVED');
-            console.log('Body:', req.body);
-            res.status(200).json({
-                status: 'ok',
-                message: 'Telegram update processed',
-                timestamp: new Date().toISOString(),
-                endpoint: 'telegram'
-            });
+            console.log('Body:', JSON.stringify(req.body, null, 2));
+
+            try {
+                // Handle Telegram message
+                const update = req.body;
+                if (update.message) {
+                    const message = update.message;
+                    const chatId = message.chat.id;
+                    const text = message.text;
+
+                    console.log('Message from chat', chatId, ':', text);
+
+                    // Handle /start command
+                    if (text === '/start') {
+                        const response = {
+                            chat_id: chatId,
+                            text: 'Привет! Я бот для мониторинга транзакций TRON кошельков.\n\n' +
+                                'Команды:\n' +
+                                '/add_wallet <адрес> - добавить кошелек\n' +
+                                '/remove_wallet <адрес> - удалить кошелек\n' +
+                                '/list_wallets - показать кошельки\n' +
+                                '/help - справка'
+                        };
+
+                        // Send response to Telegram
+                        const botToken = process.env.TELEGRAM_BOT_TOKEN;
+                        const telegramResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(response)
+                        });
+
+                        console.log('Telegram response:', await telegramResponse.text());
+                    }
+                    else if (text === '/help') {
+                        const response = {
+                            chat_id: chatId,
+                            text: 'Команды:\n' +
+                                '/add_wallet <адрес> - добавить кошелек\n' +
+                                '/remove_wallet <адрес> - удалить кошелек\n' +
+                                '/list_wallets - показать кошельки\n' +
+                                '/help - справка'
+                        };
+
+                        const botToken = process.env.TELEGRAM_BOT_TOKEN;
+                        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(response)
+                        });
+                    }
+                    else {
+                        const response = {
+                            chat_id: chatId,
+                            text: 'Неизвестная команда. Используйте /help для справки.'
+                        };
+
+                        const botToken = process.env.TELEGRAM_BOT_TOKEN;
+                        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(response)
+                        });
+                    }
+                }
+
+                res.status(200).json({
+                    status: 'ok',
+                    message: 'Telegram update processed',
+                    timestamp: new Date().toISOString(),
+                    endpoint: 'telegram'
+                });
+            } catch (error) {
+                console.error('Telegram processing error:', error);
+                res.status(200).json({
+                    status: 'ok',
+                    message: 'Telegram update processed with error',
+                    error: error.message
+                });
+            }
         }
         else if (req.url === '/health' && req.method === 'GET') {
             console.log('✅ HEALTH CHECK');
