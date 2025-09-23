@@ -22,6 +22,14 @@ export class AppController {
     return { status: 'ok', message: 'Transaction check completed' };
   }
 
+  // Альтернативный endpoint для cron
+  @Post('cron')
+  async handleCronAlt() {
+    console.log('Alternative cron triggered');
+    await this.monitoringService.checkTransactions();
+    return { status: 'ok', message: 'Transaction check completed' };
+  }
+
   // Health check endpoint
   @Get('health')
   getHealth() {
