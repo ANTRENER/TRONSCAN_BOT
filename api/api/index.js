@@ -11,7 +11,7 @@ const express_1 = __importDefault(require("express"));
 const expressApp = (0, express_1.default)();
 async function createNestApp(expressInstance) {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, new platform_express_1.ExpressAdapter(expressInstance));
-    // Отключаем CORS для Vercel
+    // Отключаем cors для Vercel
     app.enableCors();
     await app.init();
     return app;
