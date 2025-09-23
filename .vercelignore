@@ -19,5 +19,8 @@ tsconfig.build.json
 # Build artifacts (keep only dist)
 !dist/
 
+# API functions (include)
+!api/
+
 # Documentation
 README.md
