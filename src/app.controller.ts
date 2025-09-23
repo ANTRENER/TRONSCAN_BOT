@@ -43,7 +43,32 @@ export class AppController {
       return { error: 'Migrations disabled in production' };
     }
 
-    // Здесь можно добавить логику миграций
-    return { status: 'ok', message: 'Migration completed' };
+    try {
+      // Имитируем миграцию через SQL команды
+      const { Client } = require('pg');
+      const client = new Client({
+        connectionString: process.env.DATABASE_URL
+      });
+
+      await client.connect();
+
+      // Добавить колонку user_id (если еще нет)
+      await client.query('ALTER TABLE wallets ADD COLUMN IF NOT EXISTS user_id VARCHAR(255)');
+
+      // Удалить уникальное ограничение на address
+      await client.query('ALTER TABLE wallets DROP CONSTRAINT IF EXISTS UQ_f907d5fd09a9d374f1da4e13bd3');
+
+      // Добавить уникальное ограничение на address + user_id
+      await client.query('ALTER TABLE wallets ADD CONSTRAINT UQ_wallet_address_user UNIQUE (address, user_id)');
+
+      // Добавить индекс на user_id
+      await client.query('CREATE INDEX IF NOT EXISTS idx_wallets_user_id ON wallets (user_id)');
+
+      await client.end();
+
+      return { status: 'ok', message: 'Migration completed successfully' };
+    } catch (error) {
+      return { error: 'Migration failed', details: error.message };
+    }
   }
 }

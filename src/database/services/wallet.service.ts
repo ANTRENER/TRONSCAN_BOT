@@ -20,21 +20,11 @@ export class WalletService {
             throw new Error('Этот кошелек уже отслеживается в этом чате');
         }
 
-        // Если userId передан, проверяем, есть ли этот кошелек у этого пользователя в другом чате
-        if (userId) {
-            const userWallet = await this.walletRepository.findOne({
-                where: { address, userId },
-            });
-
-            if (userWallet) {
-                throw new Error('Этот кошелек уже отслеживается вами в другом чате');
-            }
-        }
-
+        // Создаем кошелек без userId (просто для совместимости)
         const wallet = this.walletRepository.create({
             address,
             chatId,
-            userId,
+            // userId: userId, // Закомментировано пока не добавим колонку
         });
 
         return this.walletRepository.save(wallet);

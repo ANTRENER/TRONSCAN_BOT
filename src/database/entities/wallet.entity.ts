@@ -11,8 +11,8 @@ export class Wallet {
     @Column()
     chatId: string;
 
-    @Column({ nullable: true })
-    userId: string;
+    // @Column({ nullable: true })
+    // userId: string; // Закомментировано пока не добавим колонку в базу
 
     @CreateDateColumn()
     createdAt: Date;
