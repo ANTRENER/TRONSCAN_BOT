@@ -2,7 +2,7 @@
     "version": 2,
     "outputDirectory": ".",
     "functions": {
-        "api/index.js": {
+        "api/index.mjs": {
             "maxDuration": 30
         }
     }
