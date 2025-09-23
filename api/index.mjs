@@ -8,23 +8,11 @@ export default async (req, res) => {
     console.log('URL:', req.url);
 
     try {
-        // Try to load NestJS app
-        let app;
-        try {
-            app = require('../dist/main.js');
-            console.log('NestJS app loaded successfully');
-        } catch (error) {
-            console.error('Failed to load NestJS app:', error);
-            // Fallback to simple response
-            return res.status(200).json({
-                status: 'ok',
-                message: 'TRONSCAN Bot is running (fallback mode)',
-                timestamp: new Date().toISOString(),
-                error: 'NestJS app not available'
-            });
-        }
+        // Load your existing NestJS app
+        const app = require('../dist/main.js');
+        console.log('NestJS app loaded successfully');
 
-        // Call NestJS handler
+        // Call your existing NestJS handler
         const handler = app.default || app;
         return handler(req, res);
 
