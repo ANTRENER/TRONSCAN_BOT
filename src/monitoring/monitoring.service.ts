@@ -74,9 +74,6 @@ export class MonitoringService {
                 return;
             }
 
-            // Получаем текущий баланс
-            const currentBalance = await this.tronService.getAccountBalance(wallet.address);
-
             // Фильтруем только новые транзакции
             // Поскольку API может игнорировать start_timestamp, полагаемся на фильтрацию по hash
             let newTransactions = transactions;
@@ -120,11 +117,16 @@ export class MonitoringService {
             let processedCount = 0;
 
             for (const tx of newTransactions.reverse()) { // Обрабатываем в хронологическом порядке
-                if ((tx.contractRet === 'SUCCESS' || tx.confirmed === true) && tx.amount > 0) {
+                if ((tx.contractRet === 'SUCCESS' || tx.confirmed === true) && (tx.amount > 0 || (tx as any).quant > 0)) {
                     processedCount++;
+
+                    // Получаем актуальный баланс для каждой транзакции
+                    const currentBalance = await this.tronService.getAccountBalance(wallet.address);
+
                     const notificationData = this.tronService.formatTransactionForNotification(
                         tx,
                         currentBalance,
+                        wallet.address,
                     );
 
                     await this.telegramService.sendTransactionNotification(

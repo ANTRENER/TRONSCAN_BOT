@@ -114,22 +114,36 @@ export class TelegramService {
     async sendTransactionNotification(
         chatId: string | number,
         transaction: {
+            walletAddress: string;
             from: string;
             to: string;
             amount: string;
             balance: string;
             timestamp: string;
             txHash: string;
+            direction: 'in' | 'out';
         }
     ) {
+        const direction = transaction.direction === 'out' ? '🔺 Исходящий' : '🔻 Входящий';
+        const date = new Date(transaction.timestamp).toLocaleString('ru-RU', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+
         const message =
-            `🔔 Новая транзакция!\n\n` +
-            `Исходящий кошелек: ${transaction.from}\n` +
-            `Кому: ${transaction.to}\n` +
-            `Сумма: ${transaction.amount} TRX\n` +
-            `Баланс: ${transaction.balance} TRX\n` +
-            `Дата и время: ${transaction.timestamp}\n\n` +
-            `🔗 [Посмотреть транзакцию](https://tronscan.org/#/transaction/${transaction.txHash})`;
+            `Кошелек:\n` +
+            `${transaction.walletAddress}\n` +
+            `Исходящий 🔺/ Входящий 🔻\n` +
+            `Кому:\n` +
+            `${transaction.to}\n\n` +
+            `Сумма: ${transaction.amount} USDT\n` +
+            `Баланс: ${transaction.balance} USDT\n\n` +
+            `Дата/время: ${date}\n` +
+            `🔗 [Ссылка на транзакцию](https://tronscan.org/#/transaction/${transaction.txHash})`;
 
         try {
             await this.bot.telegram.sendMessage(chatId, message, {
